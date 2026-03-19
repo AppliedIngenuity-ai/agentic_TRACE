@@ -1,0 +1,16 @@
+# Google Gemini Flash (OpenAI-compatible endpoint)
+#
+# Get a free API key at: https://aistudio.google.com/apikey
+# Set your key:  export GEMINI_API_KEY="AIza..."
+#
+# Billing: https://ai.google.dev/pricing
+
+name: "Gemini Flash 3-1 Flash Lite"
+provider: openai
+model: gemini-3.1-flash-lite-preview
+api_base: https://generativelanguage.googleapis.com/v1beta/openai/
+api_key_env: GEMINI_API_KEY
+temperature: 0.0
+max_tokens: 4096
+context_window: 1000000
+request_delay: 0.0

@@ -1,0 +1,386 @@
+group_name,ticker,description
+FANG,META,Original FANG stocks
+FANG,AMZN,Original FANG stocks
+FANG,NFLX,Original FANG stocks
+FANG,GOOGL,Original FANG stocks
+FAANG,META,FAANG including Apple
+FAANG,AAPL,FAANG including Apple
+FAANG,AMZN,FAANG including Apple
+FAANG,NFLX,FAANG including Apple
+FAANG,GOOGL,FAANG including Apple
+MAG7,AAPL,Magnificent Seven tech giants
+MAG7,MSFT,Magnificent Seven tech giants
+MAG7,GOOGL,Magnificent Seven tech giants
+MAG7,AMZN,Magnificent Seven tech giants
+MAG7,META,Magnificent Seven tech giants
+MAG7,NVDA,Magnificent Seven tech giants
+MAG7,TSLA,Magnificent Seven tech giants
+SEMICONDUCTORS,NVDA,Semiconductor companies
+SEMICONDUCTORS,AMD,Semiconductor companies
+SEMICONDUCTORS,INTC,Semiconductor companies
+SEMICONDUCTORS,AVGO,Semiconductor companies
+SEMICONDUCTORS,QCOM,Semiconductor companies
+SEMICONDUCTORS,TXN,Semiconductor companies
+SEMICONDUCTORS,MU,Semiconductor companies
+SEMICONDUCTORS,AMAT,Semiconductor companies
+SEMICONDUCTORS,LRCX,Semiconductor companies
+SEMICONDUCTORS,KLAC,Semiconductor companies
+SEMICONDUCTORS,ADI,Semiconductor companies
+SEMICONDUCTORS,MRVL,Semiconductor companies
+SEMICONDUCTORS,SWKS,Semiconductor companies
+SEMICONDUCTORS,QRVO,Semiconductor companies
+SEMICONDUCTORS,MPWR,Semiconductor companies
+SEMICONDUCTORS,ON,Semiconductor companies
+SEMICONDUCTORS,MCHP,Semiconductor companies
+SEMICONDUCTORS,NXPI,Semiconductor companies
+CHIPS,NVDA,Chip makers (alias for SEMICONDUCTORS)
+CHIPS,AMD,Chip makers (alias for SEMICONDUCTORS)
+CHIPS,INTC,Chip makers (alias for SEMICONDUCTORS)
+CHIPS,AVGO,Chip makers (alias for SEMICONDUCTORS)
+CHIPS,QCOM,Chip makers (alias for SEMICONDUCTORS)
+CHIPS,TXN,Chip makers (alias for SEMICONDUCTORS)
+CHIPS,MU,Chip makers (alias for SEMICONDUCTORS)
+CHIPS,MRVL,Chip makers (alias for SEMICONDUCTORS)
+AUTO,TSLA,Automobile manufacturers (autos)
+AUTO,F,Automobile manufacturers (autos)
+AUTO,GM,Automobile manufacturers (autos)
+AUTO,TM,Automobile manufacturers (autos)
+AUTO,HMC,Automobile manufacturers (autos)
+AUTO,STLA,Automobile manufacturers (autos)
+AUTOMOTIVE,TSLA,Automobile manufacturers (alias) (autos)
+AUTOMOTIVE,F,Automobile manufacturers (alias) (autos)
+AUTOMOTIVE,GM,Automobile manufacturers (alias) (autos)
+AUTOMOTIVE,TM,Automobile manufacturers (alias) (autos)
+AUTOMOTIVE,HMC,Automobile manufacturers (alias) (autos)
+AUTOMOTIVE,STLA,Automobile manufacturers (alias) (autos)
+BANKS,JPM,Major US banks (diversified + regional)
+BANKS,BAC,Major US banks (diversified + regional)
+BANKS,WFC,Major US banks (diversified + regional)
+BANKS,C,Major US banks (diversified + regional)
+BANKS,GS,Major US banks (diversified + regional)
+BANKS,MS,Major US banks (diversified + regional)
+BANKS,USB,Major US banks (diversified + regional)
+BANKS,PNC,Major US banks (diversified + regional)
+BANKS,COF,Major US banks (diversified + regional)
+BANKS,TFC,Major US banks (diversified + regional)
+BANKS,FITB,Major US banks (diversified + regional)
+BANKS,HBAN,Major US banks (diversified + regional)
+BANKS,RF,Major US banks (diversified + regional)
+BANKS,CFG,Major US banks (diversified + regional)
+BANKS,KEY,Major US banks (diversified + regional)
+BANKS,MTB,Major US banks (diversified + regional)
+REGIONAL_BANKS,USB,Regional US banks
+REGIONAL_BANKS,PNC,Regional US banks
+REGIONAL_BANKS,COF,Regional US banks
+REGIONAL_BANKS,TFC,Regional US banks
+REGIONAL_BANKS,FITB,Regional US banks
+REGIONAL_BANKS,HBAN,Regional US banks
+REGIONAL_BANKS,RF,Regional US banks
+REGIONAL_BANKS,CFG,Regional US banks
+REGIONAL_BANKS,KEY,Regional US banks
+REGIONAL_BANKS,MTB,Regional US banks
+PAYMENTS,V,Payment processors
+PAYMENTS,MA,Payment processors
+PAYMENTS,PYPL,Payment processors
+PAYMENTS,AXP,Payment processors
+BIG_TECH,AAPL,Big technology companies
+BIG_TECH,MSFT,Big technology companies
+BIG_TECH,GOOGL,Big technology companies
+BIG_TECH,AMZN,Big technology companies
+BIG_TECH,META,Big technology companies
+HEALTHCARE,JNJ,Major healthcare companies
+HEALTHCARE,UNH,Major healthcare companies
+HEALTHCARE,PFE,Major healthcare companies
+HEALTHCARE,MRK,Major healthcare companies
+HEALTHCARE,LLY,Major healthcare companies
+HEALTHCARE,TMO,Major healthcare companies
+HEALTHCARE,ABT,Major healthcare companies
+HEALTHCARE,ABBV,Major healthcare companies
+HEALTHCARE,DHR,Major healthcare companies
+HEALTHCARE,BSX,Major healthcare companies
+HEALTHCARE,SYK,Major healthcare companies
+HEALTHCARE,ISRG,Major healthcare companies
+HEALTHCARE,MDT,Major healthcare companies
+HEALTHCARE,ELV,Major healthcare companies
+HEALTHCARE,CI,Major healthcare companies
+HEALTHCARE,HUM,Major healthcare companies
+HEALTHCARE,CVS,Major healthcare companies
+HEALTHCARE,HCA,Major healthcare companies
+PHARMA,PFE,Pharmaceutical companies
+PHARMA,MRK,Pharmaceutical companies
+PHARMA,ABBV,Pharmaceutical companies
+PHARMA,LLY,Pharmaceutical companies
+PHARMA,BMY,Pharmaceutical companies
+PHARMA,AMGN,Pharmaceutical companies
+PHARMA,GILD,Pharmaceutical companies
+PHARMA,VRTX,Pharmaceutical companies
+PHARMA,REGN,Pharmaceutical companies
+PHARMA,ZTS,Pharmaceutical companies
+BIOTECH,VRTX,Biotechnology companies
+BIOTECH,REGN,Biotechnology companies
+BIOTECH,AMGN,Biotechnology companies
+BIOTECH,GILD,Biotechnology companies
+BIOTECH,IDXX,Biotechnology companies
+ENERGY,XOM,Energy sector companies
+ENERGY,CVX,Energy sector companies
+ENERGY,COP,Energy sector companies
+ENERGY,SLB,Energy sector companies
+ENERGY,EOG,Energy sector companies
+ENERGY,OXY,Energy sector companies
+ENERGY,MPC,Energy sector companies
+ENERGY,VLO,Energy sector companies
+ENERGY,PSX,Energy sector companies
+ENERGY,HAL,Energy sector companies
+ENERGY,BKR,Energy sector companies
+ENERGY,DVN,Energy sector companies
+ENERGY,APA,Energy sector companies
+ENERGY,CTRA,Energy sector companies
+ENERGY,EQT,Energy sector companies
+ENERGY,KMI,Energy sector companies
+ENERGY,WMB,Energy sector companies
+ENERGY,OKE,Energy sector companies
+ENERGY,TRGP,Energy sector companies
+ENERGY,FANG,Energy sector companies
+ENERGY,LNG,Energy sector companies
+OIL,XOM,Oil & gas producers
+OIL,CVX,Oil & gas producers
+OIL,COP,Oil & gas producers
+OIL,EOG,Oil & gas producers
+OIL,OXY,Oil & gas producers
+OIL,DVN,Oil & gas producers
+OIL,APA,Oil & gas producers
+OIL,CTRA,Oil & gas producers
+OIL,FANG,Oil & gas producers
+TELECOM,VZ,Telecom providers
+TELECOM,T,Telecom providers
+TELECOM,TMUS,Telecom providers
+TELECOM,CHTR,Telecom providers
+INDEX_ETF,SPY,S&P 500 index ETF - broad market large cap benchmark
+INDEX_ETF,QQQ,NASDAQ 100 index ETF - tech heavy nasdaq composite proxy
+INDEX_ETF,IWM,Russell 2000 index ETF - small cap benchmark
+INDEX_ETF,DIA,Dow Jones Industrial Average index ETF - blue chip benchmark
+GOLD,GLD,Gold exposure (ETFs and miners)
+GOLD,IAU,Gold exposure (ETFs and miners)
+GOLD,GDX,Gold exposure (ETFs and miners)
+GOLD,GDXJ,Gold exposure (ETFs and miners)
+GOLD,SGOL,Gold exposure (ETFs and miners)
+GOLD,NEM,Gold exposure (ETFs and miners)
+GOLD,FCX,Gold exposure (ETFs and miners)
+RETAIL,AMZN,Major retailers
+RETAIL,WMT,Major retailers
+RETAIL,COST,Major retailers
+RETAIL,HD,Major retailers
+RETAIL,LOW,Major retailers
+RETAIL,TJX,Major retailers
+RETAIL,ORLY,Major retailers
+RETAIL,AZO,Major retailers
+RETAIL,DLTR,Major retailers
+RETAIL,DG,Major retailers
+STREAMING,NFLX,Streaming entertainment
+STREAMING,DIS,Streaming entertainment
+STREAMING,WBD,Streaming entertainment
+STREAMING,CHTR,Streaming entertainment
+SOFTWARE,MSFT,Software companies
+SOFTWARE,ORCL,Software companies
+SOFTWARE,CRM,Software companies
+SOFTWARE,ADBE,Software companies
+SOFTWARE,NOW,Software companies
+SOFTWARE,INTU,Software companies
+SOFTWARE,WDAY,Software companies
+SOFTWARE,TEAM,Software companies
+SOFTWARE,TYL,Software companies
+SOFTWARE,SNOW,Software companies
+SOFTWARE,VEEV,Software companies
+CYBERSECURITY,PANW,Cybersecurity companies
+CYBERSECURITY,CRWD,Cybersecurity companies
+CYBERSECURITY,FTNT,Cybersecurity companies
+CYBERSECURITY,OKTA,Cybersecurity companies
+CYBERSECURITY,ZS,Cybersecurity companies
+DEFENSE,RTX,Defense contractors
+DEFENSE,LMT,Defense contractors
+DEFENSE,BA,Defense contractors
+DEFENSE,NOC,Defense contractors
+DEFENSE,GD,Defense contractors
+DEFENSE,TDG,Defense contractors
+DEFENSE,LHX,Defense contractors
+DEFENSE,HWM,Defense contractors
+DEFENSE,TXT,Defense contractors
+DEFENSE,HII,Defense contractors
+DEFENSE,AXON,Defense contractors
+INDUSTRIALS,CAT,Industrial companies
+INDUSTRIALS,DE,Industrial companies
+INDUSTRIALS,HON,Industrial companies
+INDUSTRIALS,GE,Industrial companies
+INDUSTRIALS,MMM,Industrial companies
+INDUSTRIALS,EMR,Industrial companies
+INDUSTRIALS,ETN,Industrial companies
+INDUSTRIALS,ITW,Industrial companies
+INDUSTRIALS,PH,Industrial companies
+INDUSTRIALS,ROK,Industrial companies
+INDUSTRIALS,AME,Industrial companies
+INDUSTRIALS,ROP,Industrial companies
+INDUSTRIALS,IR,Industrial companies
+INDUSTRIALS,CMI,Industrial companies
+INDUSTRIALS,PCAR,Industrial companies
+INDUSTRIALS,CARR,Industrial companies
+INDUSTRIALS,OTIS,Industrial companies
+INDUSTRIALS,CTAS,Industrial companies
+INDUSTRIALS,GWW,Industrial companies
+INDUSTRIALS,FAST,Industrial companies
+INDUSTRIALS,PWR,Industrial companies
+MATERIALS,LIN,Materials sector companies
+MATERIALS,APD,Materials sector companies
+MATERIALS,SHW,Materials sector companies
+MATERIALS,FCX,Materials sector companies
+MATERIALS,NEM,Materials sector companies
+MATERIALS,ECL,Materials sector companies
+MATERIALS,DD,Materials sector companies
+MATERIALS,PPG,Materials sector companies
+MATERIALS,VMC,Materials sector companies
+MATERIALS,MLM,Materials sector companies
+MATERIALS,ALB,Materials sector companies
+MATERIALS,IFF,Materials sector companies
+MATERIALS,CF,Materials sector companies
+MATERIALS,MOS,Materials sector companies
+MATERIALS,IP,Materials sector companies
+MATERIALS,PKG,Materials sector companies
+MATERIALS,NUE,Materials sector companies
+MATERIALS,STLD,Materials sector companies
+MATERIALS,RS,Materials sector companies
+MATERIALS,AA,Materials sector companies
+REITS,AMT,Real estate investment trusts
+REITS,PLD,Real estate investment trusts
+REITS,EQIX,Real estate investment trusts
+REITS,SPG,Real estate investment trusts
+REITS,PSA,Real estate investment trusts
+REITS,O,Real estate investment trusts
+REITS,WELL,Real estate investment trusts
+REITS,DLR,Real estate investment trusts
+REITS,VICI,Real estate investment trusts
+REITS,AVB,Real estate investment trusts
+REITS,EXR,Real estate investment trusts
+REITS,ARE,Real estate investment trusts
+REITS,EQR,Real estate investment trusts
+REITS,MAA,Real estate investment trusts
+REITS,VTR,Real estate investment trusts
+REITS,WY,Real estate investment trusts
+REITS,CCI,Real estate investment trusts
+REITS,CPT,Real estate investment trusts
+REITS,KIM,Real estate investment trusts
+REITS,REG,Real estate investment trusts
+REITS,FRT,Real estate investment trusts
+REITS,NNN,Real estate investment trusts
+REAL_ESTATE,AMT,Real estate sector
+REAL_ESTATE,PLD,Real estate sector
+REAL_ESTATE,EQIX,Real estate sector
+REAL_ESTATE,SPG,Real estate sector
+REAL_ESTATE,PSA,Real estate sector
+REAL_ESTATE,O,Real estate sector
+REAL_ESTATE,WELL,Real estate sector
+REAL_ESTATE,DLR,Real estate sector
+REAL_ESTATE,VICI,Real estate sector
+REAL_ESTATE,AVB,Real estate sector
+REAL_ESTATE,EXR,Real estate sector
+REAL_ESTATE,ARE,Real estate sector
+REAL_ESTATE,EQR,Real estate sector
+REAL_ESTATE,MAA,Real estate sector
+REAL_ESTATE,VTR,Real estate sector
+REAL_ESTATE,WY,Real estate sector
+REAL_ESTATE,CBRE,Real estate sector
+REAL_ESTATE,CCI,Real estate sector
+REAL_ESTATE,BXP,Real estate sector
+REAL_ESTATE,HST,Real estate sector
+UTILITIES,NEE,Utility companies
+UTILITIES,DUK,Utility companies
+UTILITIES,SO,Utility companies
+UTILITIES,D,Utility companies
+UTILITIES,SRE,Utility companies
+UTILITIES,AEP,Utility companies
+UTILITIES,EXC,Utility companies
+UTILITIES,PCG,Utility companies
+UTILITIES,ED,Utility companies
+UTILITIES,FE,Utility companies
+UTILITIES,PPL,Utility companies
+UTILITIES,EIX,Utility companies
+UTILITIES,XEL,Utility companies
+UTILITIES,WEC,Utility companies
+UTILITIES,AWK,Utility companies
+UTILITIES,CNP,Utility companies
+UTILITIES,AES,Utility companies
+UTILITIES,ETR,Utility companies
+UTILITIES,ES,Utility companies
+UTILITIES,CMS,Utility companies
+INSURANCE,CB,Insurance companies
+INSURANCE,MET,Insurance companies
+INSURANCE,PRU,Insurance companies
+INSURANCE,AFL,Insurance companies
+INSURANCE,AIG,Insurance companies
+INSURANCE,ALL,Insurance companies
+INSURANCE,TRV,Insurance companies
+INSURANCE,HIG,Insurance companies
+INSURANCE,PGR,Insurance companies
+INSURANCE,AON,Insurance companies
+INSURANCE,MMC,Insurance companies
+INSURANCE,AJG,Insurance companies
+AIRLINES,LUV,Major US airlines
+AIRLINES,AAL,Major US airlines
+AIRLINES,UAL,Major US airlines
+AIRLINES,DAL,Major US airlines
+HOMEBUILDERS,DHI,US homebuilders
+HOMEBUILDERS,LEN,US homebuilders
+HOMEBUILDERS,PHM,US homebuilders
+HOMEBUILDERS,TOL,US homebuilders
+HOMEBUILDERS,NVR,US homebuilders
+CRUISES,RCL,Cruise lines
+CRUISES,CCL,Cruise lines
+CRUISES,NCLH,Cruise lines
+CASINOS,MGM,Casino and resort operators
+CASINOS,WYNN,Casino and resort operators
+CASINOS,LVS,Casino and resort operators
+RAILROADS,UNP,US freight railroads
+RAILROADS,CSX,US freight railroads
+RAILROADS,NSC,US freight railroads
+RAILROADS,WAB,US freight railroads
+TRUCKING,ODFL,Trucking and freight
+TRUCKING,JBHT,Trucking and freight
+TRUCKING,XPO,Trucking and freight
+TRUCKING,CHRW,Trucking and freight
+FREIGHT,UPS,Freight and logistics
+FREIGHT,FDX,Freight and logistics
+FREIGHT,UNP,Freight and logistics
+FREIGHT,CSX,Freight and logistics
+FREIGHT,NSC,Freight and logistics
+FREIGHT,ODFL,Freight and logistics
+FREIGHT,JBHT,Freight and logistics
+CONSUMER_STAPLES,PG,Consumer staples (alias for Consumer Defensive)
+CONSUMER_STAPLES,KO,Consumer staples (alias for Consumer Defensive)
+CONSUMER_STAPLES,PEP,Consumer staples (alias for Consumer Defensive)
+CONSUMER_STAPLES,WMT,Consumer staples (alias for Consumer Defensive)
+CONSUMER_STAPLES,COST,Consumer staples (alias for Consumer Defensive)
+CONSUMER_STAPLES,MDLZ,Consumer staples (alias for Consumer Defensive)
+CONSUMER_STAPLES,MO,Consumer staples (alias for Consumer Defensive)
+CONSUMER_STAPLES,PM,Consumer staples (alias for Consumer Defensive)
+CONSUMER_STAPLES,CL,Consumer staples (alias for Consumer Defensive)
+CONSUMER_STAPLES,KMB,Consumer staples (alias for Consumer Defensive)
+CONSUMER_STAPLES,GIS,Consumer staples (alias for Consumer Defensive)
+CONSUMER_STAPLES,KHC,Consumer staples (alias for Consumer Defensive)
+CONSUMER_STAPLES,KDP,Consumer staples (alias for Consumer Defensive)
+CONSUMER_STAPLES,MNST,Consumer staples (alias for Consumer Defensive)
+CONSUMER_STAPLES,SYY,Consumer staples (alias for Consumer Defensive)
+FINTECH,V,Financial technology
+FINTECH,MA,Financial technology
+FINTECH,PYPL,Financial technology
+FINTECH,AXP,Financial technology
+FINTECH,SYF,Financial technology
+FINTECH,ALLY,Financial technology
+FINTECH,COF,Financial technology
+CLOUD,MSFT,Cloud computing companies
+CLOUD,GOOGL,Cloud computing companies
+CLOUD,AMZN,Cloud computing companies
+CLOUD,CRM,Cloud computing companies
+CLOUD,NOW,Cloud computing companies
+CLOUD,SNOW,Cloud computing companies
+CLOUD,DDOG,Cloud computing companies
+CLOUD,WDAY,Cloud computing companies
+CLOUD,TEAM,Cloud computing companies
+CLOUD,OKTA,Cloud computing companies

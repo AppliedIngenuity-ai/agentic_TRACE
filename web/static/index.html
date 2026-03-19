@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Web UI</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 id="title">Agent Web UI</h1>
+        </header>
+
+        <div class="query-section">
+            <div class="config-row">
+                <label for="config-select">LLM Config:</label>
+                <select id="config-select">
+                    <option value="">Loading...</option>
+                </select>
+                <span id="session-id" class="session-id" style="display: none;"></span>
+            </div>
+            <div class="query-row">
+                <input type="text" id="query-input" placeholder="Enter your query..." />
+                <button id="run-btn">Run</button>
+                <button id="stop-btn" style="display: none;">Stop</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- Collapsible Execution Log (minimized by default) -->
+            <div class="events-section collapsible collapsed" id="events-section">
+                <div class="section-header" onclick="toggleSection('events-section')">
+                    <h2>
+                        <span class="chevron">▶</span>
+                        Execution Log
+                        <span class="event-count" id="event-count"></span>
+                    </h2>
+                </div>
+                <div class="section-content">
+                    <div id="events-log" class="events-log"></div>
+                </div>
+            </div>
+
+            <!-- Execution Summary (shown on completion) -->
+            <div class="summary-section" id="summary-section" style="display: none;">
+                <h2>Execution Summary</h2>
+                <div id="execution-summary" class="execution-summary"></div>
+            </div>
+
+            <div class="charts-section" id="charts-section" style="display: none;">
+                <h2>Charts</h2>
+                <div id="charts-container" class="charts-container"></div>
+            </div>
+
+            <div class="results-section" id="results-section" style="display: none;">
+                <h2>Results</h2>
+                <div id="results-table-container"></div>
+            </div>
+        </div>
+
+        <!-- Human Input Modal -->
+        <div id="input-modal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <h3>Agent Needs Clarification</h3>
+                <p id="input-context" class="input-context"></p>
+                <p id="input-question" class="input-question"></p>
+                <div id="input-options" class="input-options"></div>
+                <div class="input-freetext">
+                    <input type="text" id="input-custom" placeholder="Or type your answer..." />
+                </div>
+                <button id="input-submit" class="submit-btn">Submit</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

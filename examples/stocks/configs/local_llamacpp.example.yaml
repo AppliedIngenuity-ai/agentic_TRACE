@@ -1,0 +1,25 @@
+# Local model via llama.cpp server (or any OpenAI-compatible endpoint)
+#
+# Start llama.cpp server:
+#   llama-server -m model.gguf --port 8080
+#
+# Also works with: vLLM, Ollama, LM Studio, text-generation-webui, etc.
+# Any server that exposes an OpenAI-compatible /v1/chat/completions endpoint.
+
+name: "Local LLM"
+provider: openai
+model: local-model       # Model name (some servers ignore this)
+api_base: http://localhost:8080/v1
+api_key_env: null        # Not needed for local servers
+temperature: 0.0
+max_tokens: 4096
+context_window: 32768    # Model context window (for message compaction)
+
+# Optional: restrict available tools (default: all 8 tools)
+# tools:
+#   - resolve_time
+#   - explore
+#   - create_view
+#   - compute_indicator
+#   - aggregate
+#   - chart

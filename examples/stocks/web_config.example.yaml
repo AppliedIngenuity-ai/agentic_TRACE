@@ -1,0 +1,38 @@
+# Web UI configuration for Stock Analysis Agent
+#
+# Copy this file to web_config.yaml and customize for your setup.
+
+title: "Stock Analysis Agent"
+
+# Server settings
+host: "127.0.0.1"       # Use "0.0.0.0" to allow external connections
+port: 8777
+
+# SSL/HTTPS (uncomment and set paths to enable)
+# ssl_cert: /path/to/cert.pem
+# ssl_key: /path/to/key.pem
+
+# Available LLM configs (in order of appearance, first is default)
+# These reference .yaml files in the configs/ directory (without extension)
+configs:
+  - local_llamacpp
+#  - anthropic_sonnet
+#  - openai_gpt4
+
+# Default config (first in list if not specified)
+default_config: local_llamacpp
+
+# Polling interval in milliseconds
+poll_interval_ms: 3000
+
+# Directory for session data
+session_dir: ./sessions
+
+# Directory containing LLM config YAML files
+config_dir: ./configs
+
+# Public URL for display (uncomment and set if behind a reverse proxy)
+# public_url: https://your-domain.com:8777
+
+# Number of rows to show in the results preview table (default: 10)
+preview_rows: 100

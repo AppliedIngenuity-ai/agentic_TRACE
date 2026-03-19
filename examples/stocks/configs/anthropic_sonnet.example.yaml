@@ -1,0 +1,23 @@
+# Anthropic Claude Sonnet (native API)
+#
+# Uses the anthropic Python SDK directly for native tool calling support.
+# Install: pip install anthropic
+# Set your API key: export ANTHROPIC_API_KEY="sk-ant-..."
+
+name: "Claude Sonnet"
+provider: anthropic
+model: claude-sonnet-4-20250514
+api_base: null           # Uses default: https://api.anthropic.com
+api_key_env: ANTHROPIC_API_KEY
+temperature: 0.0
+max_tokens: 4096
+context_window: 200000   # Claude Sonnet context window
+
+# Optional: restrict available tools (default: all 8 tools)
+# tools:
+#   - resolve_time
+#   - explore
+#   - create_view
+#   - compute_indicator
+#   - aggregate
+#   - chart

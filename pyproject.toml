@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agentic_TRACE"
+version = "0.1.0"
+description = "A generic framework for building LLM-powered data analysis agents"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+dependencies = [
+    "openai>=1.0.0",
+    "duckdb>=0.9.0",
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    "PyYAML==6.0.3",
+    "Flask==3.1.2",
+    "matplotlib==3.10.7",
+    "yfinance>=0.2.0",
+    "requests>=2.28.0",
+    "python-dotenv>=1.0.0",
+    "anthropic>=0.40.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+]
+
+# The repo root IS the agentic_TRACE package.
+# Install with: cd .. && pip install -e agentic_TRACE
+# Or: PYTHONPATH=/path/to/parent python -m agentic_TRACE
+[tool.setuptools.package-dir]
+"agentic_TRACE" = "."
+
+[tool.setuptools.packages]
+find = {where = ["."], namespaces = false}

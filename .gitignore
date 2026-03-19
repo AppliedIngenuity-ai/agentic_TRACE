@@ -1,0 +1,48 @@
+# Python junk
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+
+# Agentic / LLM Specific
+# Don't accidentally push your OpenAI/Anthropic/LLaMA keys!
+.env
+.python-version
+secrets.yaml
+
+# Large Model Files (if you download GGUFs or weights locally)
+*.gguf
+*.bin
+models/
+huggingface_cache/
+
+# User configs (keep .example.yaml templates committed)
+examples/stocks/configs/*.yaml
+!examples/stocks/configs/*.example.yaml
+examples/stocks/web_config.yaml
+examples/stocks/data/market.duckdb
+
+# OS/Logs
+.DS_Store
+*.log
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+
+# Test artifacts
+.pytest_cache/
+.coverage
+LOCAL_DEV.md
+
+# Logs N things
+examples/stocks/logs/
+examples/stocks/results/
+examples/stocks/sessions/
+*.excalidraw

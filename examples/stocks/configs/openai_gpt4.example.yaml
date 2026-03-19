@@ -1,0 +1,23 @@
+# OpenAI GPT-4
+#
+# Uses the OpenAI Python SDK.
+# Install: pip install openai
+# Set your API key: export OPENAI_API_KEY="sk-..."
+
+name: "GPT-4 Turbo"
+provider: openai
+model: gpt-4-turbo
+api_base: null           # Uses default: https://api.openai.com/v1
+api_key_env: OPENAI_API_KEY
+temperature: 0.0
+max_tokens: 4096
+context_window: 128000   # GPT-4 Turbo context window
+
+# Optional: restrict available tools (default: all 8 tools)
+# tools:
+#   - resolve_time
+#   - explore
+#   - create_view
+#   - compute_indicator
+#   - aggregate
+#   - chart
