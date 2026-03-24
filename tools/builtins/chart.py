@@ -194,25 +194,53 @@ class ChartTool(BaseTool):
 
         fig, ax = plt.subplots(figsize=tuple(figsize))
 
+        # For bar charts with multiple series, compute unique x-labels and use
+        # integer positions with offsets so bars sit side-by-side instead of overlapping.
+        bar_grouped = chart_type == "bar" and (len(y_cols) > 1 or color_by)
+        bar_x_labels = None
+        if bar_grouped:
+            import numpy as np
+            # Unique x values in original order (works for both string and numeric x)
+            seen = {}
+            bar_x_labels = [seen.setdefault(v, v) for v in df[x] if v not in seen]
+
         if len(y_cols) > 1 and color_by:
             # Multiple y columns + color_by — plot each y column per group
             groups = df.groupby(color_by)
+            series_keys = [(name, col) for name in groups.groups for col in y_cols]
+            n = len(series_keys)
+            offsets = self._bar_offsets(n) if bar_grouped else [None] * n
+            idx = 0
             for name, group in groups:
                 for col in y_cols:
-                    self._plot_data(ax, group, chart_type, x, col, label=f"{name} {col}")
+                    self._plot_data(ax, group, chart_type, x, col, label=f"{name} {col}",
+                                    bar_offset=offsets[idx], bar_n=n, bar_x_labels=bar_x_labels)
+                    idx += 1
             ax.legend()
         elif len(y_cols) > 1:
             # Multiple y columns — plot each as a labeled series
-            for col in y_cols:
-                self._plot_data(ax, df, chart_type, x, col, label=col)
+            n = len(y_cols)
+            offsets = self._bar_offsets(n) if bar_grouped else [None] * n
+            for i, col in enumerate(y_cols):
+                self._plot_data(ax, df, chart_type, x, col, label=col,
+                                bar_offset=offsets[i], bar_n=n, bar_x_labels=bar_x_labels)
             ax.legend()
         elif color_by:
             groups = df.groupby(color_by)
-            for name, group in groups:
-                self._plot_data(ax, group, chart_type, x, y_cols[0], label=str(name))
+            n = len(groups)
+            offsets = self._bar_offsets(n) if bar_grouped else [None] * n
+            for i, (name, group) in enumerate(groups):
+                self._plot_data(ax, group, chart_type, x, y_cols[0], label=str(name),
+                                bar_offset=offsets[i], bar_n=n, bar_x_labels=bar_x_labels)
             ax.legend()
         else:
             self._plot_data(ax, df, chart_type, x, y_cols[0])
+
+        # Set tick labels once for grouped bar charts
+        if bar_grouped and bar_x_labels is not None:
+            import numpy as np
+            ax.set_xticks(np.arange(len(bar_x_labels)))
+            ax.set_xticklabels([str(v) for v in bar_x_labels])
 
         ax.set_xlabel(x)
         ax.set_ylabel(", ".join(y_cols))
@@ -228,15 +256,19 @@ class ChartTool(BaseTool):
         if is_string_x or len(df) > 20:
             max_label_len = df[x].astype(str).str.len().max() if len(df) > 0 else 0
             rotation = 90 if max_label_len > 12 else 45
-            if chart_type == "bar" and is_string_x:
-                # Force a canvas draw to materialize categorical tick positions.
+            if chart_type == "bar" and is_string_x and not bar_grouped:
+                # Simple (non-grouped) bar with string x: freeze tick positions
+                # and deduplicate labels. Grouped bars handle ticks above.
                 fig.canvas.draw()
-                # Freeze tick positions: replaces CategoricalLocator → FixedLocator.
                 ax.set_xticks(ax.get_xticks())
-                # Deduplicate while preserving order (color_by produces one row per group×x)
                 seen = {}
                 x_labels = [seen.setdefault(v, v) for v in df[x].astype(str) if v not in seen]
                 ax.set_xticklabels(x_labels, rotation=rotation, ha='right')
+            elif bar_grouped:
+                # Grouped bars: ticks already set, just apply rotation
+                ax.tick_params(axis='x', labelrotation=rotation)
+                for label in ax.get_xticklabels():
+                    label.set_ha('right')
             else:
                 ax.tick_params(axis='x', labelrotation=rotation)
                 plt.draw()
@@ -278,7 +310,15 @@ class ChartTool(BaseTool):
 
         return chart_data
 
-    def _plot_data(self, ax, df, chart_type, x, y, label=None):
+    @staticmethod
+    def _bar_offsets(n: int) -> list[float]:
+        """Return centered offsets for n grouped bars, each of width 0.8/n."""
+        import numpy as np
+        width = 0.8 / n
+        return list(np.linspace(-(0.8 - width) / 2, (0.8 - width) / 2, n))
+
+    def _plot_data(self, ax, df, chart_type, x, y, label=None,
+                   bar_offset=None, bar_n=None, bar_x_labels=None):
         """Plot data on axes based on chart type."""
         # Drop rows where x or y is NaN/None to avoid matplotlib tick label errors
         mask = df[x].notna() & df[y].notna()
@@ -294,7 +334,14 @@ class ChartTool(BaseTool):
         if chart_type == "line":
             ax.plot(x_vals, y_vals, label=label)
         elif chart_type == "bar":
-            ax.bar(x_vals, y_vals, label=label)
+            if bar_offset is not None and bar_x_labels is not None:
+                # Grouped bars: map x values to integer positions, then offset
+                width = 0.8 / bar_n
+                label_to_pos = {v: i for i, v in enumerate(bar_x_labels)}
+                positions = np.array([label_to_pos[v] for v in x_vals]) + bar_offset
+                ax.bar(positions, y_vals, width=width, label=label)
+            else:
+                ax.bar(x_vals, y_vals, label=label)
         elif chart_type == "scatter":
             ax.scatter(x_vals, y_vals, label=label, alpha=0.6)
         elif chart_type == "histogram":
