@@ -237,10 +237,9 @@ Line chart: John Deere vs Caterpillar, last 20 trading days
 ### Multi-step / Complex
 
 ```
-Find the 3 stocks most correlated with NVDA over the last year,
-  then chart their 20-day EMA normalized to 1
-Which sector had the best average daily return for Q3 2024?
-  List the top 5 stocks in that sector with their returns.
+Which SEMICONDUCTORS stocks had the least similar daily return pattern to NVDA over
+    the past 90 trading days? Chart the top 3 and NVDA normalized to 1.
+Which sector had the best average daily return for Q3 2024? Plot the top 3
 ```
 
 ---

@@ -194,7 +194,14 @@ class ChartTool(BaseTool):
 
         fig, ax = plt.subplots(figsize=tuple(figsize))
 
-        if len(y_cols) > 1:
+        if len(y_cols) > 1 and color_by:
+            # Multiple y columns + color_by — plot each y column per group
+            groups = df.groupby(color_by)
+            for name, group in groups:
+                for col in y_cols:
+                    self._plot_data(ax, group, chart_type, x, col, label=f"{name} {col}")
+            ax.legend()
+        elif len(y_cols) > 1:
             # Multiple y columns — plot each as a labeled series
             for col in y_cols:
                 self._plot_data(ax, df, chart_type, x, col, label=col)
