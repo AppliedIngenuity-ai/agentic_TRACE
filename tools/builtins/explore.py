@@ -125,11 +125,11 @@ class ExploreTool(BaseTool):
 
         # Route 3: Search inside a specific source
         if source and query:
-            return self._search_in_source(source, query, kwargs)
+            return self._search_in_source(source, query, kwargs, session=session)
 
         # Route 3b: Browse a source (source given, no query — return rows directly)
         if source:
-            return self._browse_source(source, kwargs)
+            return self._browse_source(source, kwargs, session=session)
 
         # Route 4: Search FOR sources/views by keyword
         if query:
@@ -214,9 +214,18 @@ class ExploreTool(BaseTool):
     # ── Route 3: Search inside a source ─────────────────────────────────
 
     def _search_in_source(
-        self, source_name: str, query: str, kwargs: dict
+        self, source_name: str, query: str, kwargs: dict,
+        session: "Session | None" = None,
     ) -> ToolResult:
         if source_name not in self._source_map:
+            # Fall through to describe_view if it matches a session view
+            if session and source_name in session.views:
+                result = self._describe_view(session, source_name, kwargs.get("columns"))
+                result.warnings.append(
+                    f"'{source_name}' is a view, not a data source — "
+                    f"used view= internally. For future calls, use view='{source_name}'."
+                )
+                return result
             available = list(self._source_map.keys())
             return self.error(
                 f"Source '{source_name}' not found. Available: {available}",
@@ -252,9 +261,18 @@ class ExploreTool(BaseTool):
 
     # ── Route 3b: Browse a source ────────────────────────────────────────
 
-    def _browse_source(self, source_name: str, kwargs: dict) -> ToolResult:
+    def _browse_source(self, source_name: str, kwargs: dict,
+                       session: "Session | None" = None) -> ToolResult:
         """Return rows from a source directly, with optional column filter and limit."""
         if source_name not in self._source_map:
+            # Fall through to describe_view if it matches a session view
+            if session and source_name in session.views:
+                result = self._describe_view(session, source_name, kwargs.get("columns"))
+                result.warnings.append(
+                    f"'{source_name}' is a view, not a data source — "
+                    f"used view= internally. For future calls, use view='{source_name}'."
+                )
+                return result
             available = list(self._source_map.keys())
             return self.error(
                 f"Source '{source_name}' not found. Available: {available}",
@@ -688,5 +706,7 @@ class ExploreTool(BaseTool):
             "query='chip' finds sources/views with matching names or columns. "
             "source='companies' + query='apple' searches inside that source. "
             "view='my_view' describes its schema. "
-            "question='Which ticker?' asks the user."
+            "question='Which ticker?' asks the user. "
+            "Note: finalized views and charts are returned to the user automatically with "
+            "raw data — there is no need to explore a view you just created or finalized."
         )
