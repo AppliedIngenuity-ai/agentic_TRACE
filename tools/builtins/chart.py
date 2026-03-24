@@ -219,21 +219,17 @@ class ChartTool(BaseTool):
         ax.set_title(title)
 
         # Rotate x-axis labels if needed.
-        # For bar charts: use ax.set_xticklabels() directly — the x categories from df[x]
-        # are always available here without needing a prior draw().  ax.get_xticklabels()
-        # returns empty Text objects for simple (non-colored) bar charts until a render
-        # happens, so we cannot rely on it.
-        # For other chart types: ax.tick_params + draw() is sufficient.
-        # Use is_string_dtype (not == 'object') to catch pandas StringDtype / ArrowDtype too.
+        # For bar charts with string x: use set_xticklabels() to deduplicate labels
+        # (color_by produces one row per group×x, so df[x] has repeats).
+        # For numeric x or non-bar charts: tick_params is sufficient — let matplotlib
+        # manage its own tick positions to avoid FixedLocator/label count mismatches.
         import pandas as _pd
-        if _pd.api.types.is_string_dtype(df[x]) or len(df) > 20:
+        is_string_x = _pd.api.types.is_string_dtype(df[x])
+        if is_string_x or len(df) > 20:
             max_label_len = df[x].astype(str).str.len().max() if len(df) > 0 else 0
             rotation = 90 if max_label_len > 12 else 45
-            if chart_type == "bar":
+            if chart_type == "bar" and is_string_x:
                 # Force a canvas draw to materialize categorical tick positions.
-                # ax.legend() (called for color_by charts) has this side effect naturally,
-                # but simple bar charts need it explicit so ax.get_xticks() returns
-                # real positions instead of stale/empty ones.
                 fig.canvas.draw()
                 # Freeze tick positions: replaces CategoricalLocator → FixedLocator.
                 ax.set_xticks(ax.get_xticks())
