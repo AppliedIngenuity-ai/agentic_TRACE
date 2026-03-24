@@ -76,6 +76,13 @@ class ChartTool(BaseTool):
                 required=False,
             ),
             ToolParameter(
+                name="stacked",
+                param_type="boolean",
+                description="Stack bars on top of each other instead of side-by-side. Only applies to bar charts with multiple series (multiple y columns or color_by).",
+                required=False,
+                default=False,
+            ),
+            ToolParameter(
                 name="figsize",
                 param_type="array",
                 description="Figure size in inches as [width, height] (e.g., [12, 7]). Do NOT pass pixel values like [800, 600] — use inches only.",
@@ -146,11 +153,13 @@ class ChartTool(BaseTool):
                 ErrorType.DATA_ERROR,
             )
 
+        stacked = kwargs.get("stacked", False)
+
         # Generate chart
         try:
             chart_data = self._generate_chart(
                 df, chart_type, x, y_cols, title, color_by, figsize,
-                session=session, view_name=view_name,
+                stacked=stacked, session=session, view_name=view_name,
             )
         except ImportError as e:
             return self.error(
@@ -183,7 +192,7 @@ class ChartTool(BaseTool):
         return result
 
     def _generate_chart(self, df, chart_type, x, y_cols, title, color_by, figsize,
-                        session=None, view_name=None):
+                        stacked=False, session=None, view_name=None):
         """Generate chart and return base64-encoded PNG. y_cols is a list of column names."""
         try:
             import matplotlib
@@ -194,46 +203,96 @@ class ChartTool(BaseTool):
 
         fig, ax = plt.subplots(figsize=tuple(figsize))
 
-        if len(y_cols) > 1:
+        # For bar charts with multiple series, compute unique x-labels and use
+        # integer positions with offsets (grouped) or bottom stacking (stacked).
+        multi_series = len(y_cols) > 1 or color_by
+        bar_multi = chart_type == "bar" and multi_series
+        bar_x_labels = None
+        if bar_multi:
+            import numpy as np
+            # Unique x values in original order (works for both string and numeric x)
+            seen = {}
+            bar_x_labels = [seen.setdefault(v, v) for v in df[x] if v not in seen]
+
+        # Track cumulative bottom for stacked bar charts
+        bar_bottom_pos = None  # positive stack
+        bar_bottom_neg = None  # negative stack
+        if bar_multi and stacked:
+            import numpy as np
+            bar_bottom_pos = np.zeros(len(bar_x_labels))
+            bar_bottom_neg = np.zeros(len(bar_x_labels))
+
+        if len(y_cols) > 1 and color_by:
+            # Multiple y columns + color_by — plot each y column per group
+            groups = df.groupby(color_by)
+            series_keys = [(name, col) for name in groups.groups for col in y_cols]
+            n = len(series_keys)
+            offsets = self._bar_offsets(n) if bar_multi and not stacked else [None] * n
+            idx = 0
+            for name, group in groups:
+                for col in y_cols:
+                    self._plot_data(ax, group, chart_type, x, col, label=f"{name} {col}",
+                                    bar_offset=offsets[idx], bar_n=n, bar_x_labels=bar_x_labels,
+                                    bar_bottom_pos=bar_bottom_pos, bar_bottom_neg=bar_bottom_neg,
+                                    stacked=stacked)
+                    idx += 1
+            ax.legend()
+        elif len(y_cols) > 1:
             # Multiple y columns — plot each as a labeled series
-            for col in y_cols:
-                self._plot_data(ax, df, chart_type, x, col, label=col)
+            n = len(y_cols)
+            offsets = self._bar_offsets(n) if bar_multi and not stacked else [None] * n
+            for i, col in enumerate(y_cols):
+                self._plot_data(ax, df, chart_type, x, col, label=col,
+                                bar_offset=offsets[i], bar_n=n, bar_x_labels=bar_x_labels,
+                                bar_bottom_pos=bar_bottom_pos, bar_bottom_neg=bar_bottom_neg,
+                                stacked=stacked)
             ax.legend()
         elif color_by:
             groups = df.groupby(color_by)
-            for name, group in groups:
-                self._plot_data(ax, group, chart_type, x, y_cols[0], label=str(name))
+            n = len(groups)
+            offsets = self._bar_offsets(n) if bar_multi and not stacked else [None] * n
+            for i, (name, group) in enumerate(groups):
+                self._plot_data(ax, group, chart_type, x, y_cols[0], label=str(name),
+                                bar_offset=offsets[i], bar_n=n, bar_x_labels=bar_x_labels,
+                                bar_bottom_pos=bar_bottom_pos, bar_bottom_neg=bar_bottom_neg,
+                                stacked=stacked)
             ax.legend()
         else:
             self._plot_data(ax, df, chart_type, x, y_cols[0])
+
+        # Set tick labels once for multi-series bar charts (grouped or stacked)
+        if bar_multi and bar_x_labels is not None:
+            import numpy as np
+            ax.set_xticks(np.arange(len(bar_x_labels)))
+            ax.set_xticklabels([str(v) for v in bar_x_labels])
 
         ax.set_xlabel(x)
         ax.set_ylabel(", ".join(y_cols))
         ax.set_title(title)
 
         # Rotate x-axis labels if needed.
-        # For bar charts: use ax.set_xticklabels() directly — the x categories from df[x]
-        # are always available here without needing a prior draw().  ax.get_xticklabels()
-        # returns empty Text objects for simple (non-colored) bar charts until a render
-        # happens, so we cannot rely on it.
-        # For other chart types: ax.tick_params + draw() is sufficient.
-        # Use is_string_dtype (not == 'object') to catch pandas StringDtype / ArrowDtype too.
+        # For bar charts with string x: use set_xticklabels() to deduplicate labels
+        # (color_by produces one row per group×x, so df[x] has repeats).
+        # For numeric x or non-bar charts: tick_params is sufficient — let matplotlib
+        # manage its own tick positions to avoid FixedLocator/label count mismatches.
         import pandas as _pd
-        if _pd.api.types.is_string_dtype(df[x]) or len(df) > 20:
+        is_string_x = _pd.api.types.is_string_dtype(df[x])
+        if is_string_x or len(df) > 20:
             max_label_len = df[x].astype(str).str.len().max() if len(df) > 0 else 0
             rotation = 90 if max_label_len > 12 else 45
-            if chart_type == "bar":
-                # Force a canvas draw to materialize categorical tick positions.
-                # ax.legend() (called for color_by charts) has this side effect naturally,
-                # but simple bar charts need it explicit so ax.get_xticks() returns
-                # real positions instead of stale/empty ones.
+            if chart_type == "bar" and is_string_x and not bar_multi:
+                # Simple (non-multi-series) bar with string x: freeze tick positions
+                # and deduplicate labels. Multi-series bars handle ticks above.
                 fig.canvas.draw()
-                # Freeze tick positions: replaces CategoricalLocator → FixedLocator.
                 ax.set_xticks(ax.get_xticks())
-                # Deduplicate while preserving order (color_by produces one row per group×x)
                 seen = {}
                 x_labels = [seen.setdefault(v, v) for v in df[x].astype(str) if v not in seen]
                 ax.set_xticklabels(x_labels, rotation=rotation, ha='right')
+            elif bar_multi:
+                # Multi-series bars: ticks already set, just apply rotation
+                ax.tick_params(axis='x', labelrotation=rotation)
+                for label in ax.get_xticklabels():
+                    label.set_ha('right')
             else:
                 ax.tick_params(axis='x', labelrotation=rotation)
                 plt.draw()
@@ -275,7 +334,16 @@ class ChartTool(BaseTool):
 
         return chart_data
 
-    def _plot_data(self, ax, df, chart_type, x, y, label=None):
+    @staticmethod
+    def _bar_offsets(n: int) -> list[float]:
+        """Return centered offsets for n grouped bars, each of width 0.8/n."""
+        import numpy as np
+        width = 0.8 / n
+        return list(np.linspace(-(0.8 - width) / 2, (0.8 - width) / 2, n))
+
+    def _plot_data(self, ax, df, chart_type, x, y, label=None,
+                   bar_offset=None, bar_n=None, bar_x_labels=None,
+                   bar_bottom_pos=None, bar_bottom_neg=None, stacked=False):
         """Plot data on axes based on chart type."""
         # Drop rows where x or y is NaN/None to avoid matplotlib tick label errors
         mask = df[x].notna() & df[y].notna()
@@ -291,7 +359,32 @@ class ChartTool(BaseTool):
         if chart_type == "line":
             ax.plot(x_vals, y_vals, label=label)
         elif chart_type == "bar":
-            ax.bar(x_vals, y_vals, label=label)
+            if stacked and bar_x_labels is not None and bar_bottom_pos is not None:
+                # Stacked bars: place each series on top of the previous
+                label_to_pos = {v: i for i, v in enumerate(bar_x_labels)}
+                positions = np.array([label_to_pos[v] for v in x_vals])
+                # Use separate stacks for positive and negative values
+                bottom = np.zeros(len(y_vals))
+                for j, (pos, val) in enumerate(zip(positions, y_vals)):
+                    if val >= 0:
+                        bottom[j] = bar_bottom_pos[pos]
+                    else:
+                        bottom[j] = bar_bottom_neg[pos]
+                ax.bar(positions, y_vals, bottom=bottom, label=label)
+                # Update cumulative bottoms
+                for j, (pos, val) in enumerate(zip(positions, y_vals)):
+                    if val >= 0:
+                        bar_bottom_pos[pos] += val
+                    else:
+                        bar_bottom_neg[pos] += val
+            elif bar_offset is not None and bar_x_labels is not None:
+                # Grouped bars: map x values to integer positions, then offset
+                width = 0.8 / bar_n
+                label_to_pos = {v: i for i, v in enumerate(bar_x_labels)}
+                positions = np.array([label_to_pos[v] for v in x_vals]) + bar_offset
+                ax.bar(positions, y_vals, width=width, label=label)
+            else:
+                ax.bar(x_vals, y_vals, label=label)
         elif chart_type == "scatter":
             ax.scatter(x_vals, y_vals, label=label, alpha=0.6)
         elif chart_type == "histogram":
@@ -328,5 +421,7 @@ class ChartTool(BaseTool):
         return (
             f"Generate a chart from a view. Types: {', '.join(self.CHART_TYPES)}. "
             "Specify x and y columns. Use color_by for grouping. "
+            "For bar charts with multiple series, bars are side-by-side by default; "
+            "set stacked=true to stack them. "
             "Set title to give the chart a descriptive name (defaults to view name)."
         )
