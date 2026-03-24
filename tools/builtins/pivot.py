@@ -118,6 +118,10 @@ class PivotTool(BaseTool):
                     for col in pivoted.columns
                 ]
 
+            # Ensure all column names are strings (pivot on numeric columns
+            # like year produces float/int column names which break downstream)
+            pivoted.columns = [str(c) if not isinstance(c, str) else c for c in pivoted.columns]
+
         except Exception as e:
             return self.error(
                 f"Pivot failed: {str(e)}",
