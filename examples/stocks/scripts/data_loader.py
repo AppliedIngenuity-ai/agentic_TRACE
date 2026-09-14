@@ -15,18 +15,22 @@ import yfinance as yf
 import pandas as pd
 from datetime import datetime, timedelta
 import os
+import shutil
 import time
 from typing import List, Optional
 
 # Rate limit delay between Yahoo Finance requests (seconds)
-REQUEST_DELAY = 0.3
+REQUEST_DELAY = 0.51
 
 
 class DataLoader:
     """Handles downloading and storing financial data"""
     
-    def __init__(self, db_path: str = "./data/market.duckdb"):
+    def __init__(self, db_path: str = "./data/market.duckdb", read_only: bool = False):
         self.db_path = db_path
+        self.read_only = read_only
+        if read_only:
+            return  # inspection only (e.g. --summary): don't create dirs/tables, just read
         self._ensure_db_exists()
         self._create_tables()
     
@@ -90,6 +94,12 @@ class DataLoader:
         if end_date is None:
             end_date = datetime.now().strftime("%Y-%m-%d")
 
+        # "Current" = the most recent expected trading day = yesterday (rolled back over weekends).
+        # yfinance's end date is EXCLUSIVE, so end_date stays "today" to fetch THROUGH yesterday — but
+        # the up-to-date check below compares against yesterday, so a ticker that already has yesterday's
+        # data is skipped WITHOUT any Yahoo Finance request.
+        latest_expected = _latest_expected_trading_day(datetime.now().date())
+
         conn = duckdb.connect(self.db_path)
         stats = {"success": [], "failed": [], "skipped": [], "updated": []}
 
@@ -114,9 +124,10 @@ class DataLoader:
                         max_date = result[1]
                         is_update = True
 
-                        # Check if we need to update (latest data is before end_date)
-                        if str(max_date) >= end_date:
-                            print(f"⊘ {ticker}: Already up to date (latest: {max_date})")
+                        # Already have data through the most recent expected trading day (yesterday)?
+                        # Skip the Yahoo Finance query entirely — no network call needed.
+                        if max_date >= latest_expected:
+                            print(f"⊘ {ticker}: Already up to date (latest: {max_date}, current: {latest_expected})")
                             stats["skipped"].append(ticker)
                             continue
 
@@ -211,7 +222,7 @@ class DataLoader:
     
     def get_data_summary(self) -> pd.DataFrame:
         """Get summary of data in database"""
-        conn = duckdb.connect(self.db_path)
+        conn = duckdb.connect(self.db_path, read_only=self.read_only)
         
         summary = conn.execute("""
             SELECT 
@@ -271,6 +282,46 @@ def load_tickers_from_config(db_path: str = "./data/market.duckdb") -> List[str]
     return tickers
 
 
+def _wal(path: str) -> str:
+    return path + ".wal"
+
+
+def _latest_expected_trading_day(today):
+    """The most recent day we'd expect market data for: yesterday, rolled back over weekends.
+    (Holidays aren't modeled — at worst that's one wasted, empty Yahoo query on a holiday.)"""
+    d = today - timedelta(days=1)
+    while d.weekday() >= 5:  # Saturday=5, Sunday=6 → step back to Friday
+        d -= timedelta(days=1)
+    return d
+
+
+def prepare_hot_swap(db_path: str) -> str:
+    """Copy the live DB to a private staging file we can open read-write WITHOUT disturbing the file the
+    server holds open. DuckDB allows only one read-write process per file and won't let a writer in while
+    the server holds a read-only handle — so we never write the live file; we build a copy and atomically
+    swap it in (see commit_hot_swap). The OS-level copy needs no DuckDB lock."""
+    staging = db_path + ".staging"
+    for p in (staging, _wal(staging)):
+        if os.path.exists(p):
+            os.remove(p)
+    shutil.copy2(db_path, staging)
+    if os.path.exists(_wal(db_path)):
+        shutil.copy2(_wal(db_path), _wal(staging))
+    print(f"⇄ hot-swap: staged a copy at {staging} (the live DB is untouched while it's in use)")
+    return staging
+
+
+def commit_hot_swap(staging: str, db_path: str) -> None:
+    """Atomically replace the live DB with the freshly-updated staging copy. os.replace is atomic on
+    POSIX, and the server's already-open handle keeps serving the OLD file until it REOPENS the DB — so
+    readers never see a half-written file, but new rows appear only after the server reopens/restarts."""
+    os.replace(staging, db_path)
+    if os.path.exists(_wal(staging)):
+        os.replace(_wal(staging), _wal(db_path))
+    elif os.path.exists(_wal(db_path)):
+        os.remove(_wal(db_path))  # a stale WAL would shadow the swapped-in file
+
+
 def main():
     """
     Download stock data from Yahoo Finance.
@@ -290,15 +341,18 @@ def main():
     parser.add_argument("--force", action="store_true", help="Force re-download existing data")
     parser.add_argument("--summary", action="store_true", help="Just show data summary, don't download")
     parser.add_argument("--db", default="./data/market.duckdb", help="Database path")
+    parser.add_argument("--hot-swap", action="store_true",
+                        help="update a staged COPY and atomically swap it in, so the loader can run "
+                             "while the server holds the DB open (server picks it up on its next reopen)")
     args = parser.parse_args()
 
     print("Financial Data Loader")
     print("=" * 60)
 
-    loader = DataLoader(db_path=args.db)
-
-    # Just show summary if requested
+    # --summary only reads: open the live DB READ-ONLY so it works even while the server holds it open
+    # (DuckDB allows many concurrent readers; only a writer is exclusive).
     if args.summary:
+        loader = DataLoader(db_path=args.db, read_only=True)
         print("\nDATA SUMMARY")
         summary = loader.get_data_summary()
         if len(summary) > 0:
@@ -319,34 +373,69 @@ def main():
     end_date = datetime.now().strftime("%Y-%m-%d")
     start_date = (datetime.now() - timedelta(days=args.days)).strftime("%Y-%m-%d")
 
+    # Hot-swap: build into a private staged COPY and atomically swap it in, so the loader can run while
+    # the server holds the live DB open (DuckDB won't let a writer touch a file that's in use).
+    staging = None
+    work_db = args.db
+    if args.hot_swap and os.path.exists(args.db):
+        staging = prepare_hot_swap(args.db)
+        work_db = staging
+
     print(f"\nDownloading data for {len(tickers)} tickers")
     print(f"Date range: {start_date} to {end_date}")
     if args.force:
         print("Mode: FORCE REFRESH")
     print()
 
-    stats = loader.download_stock_data(
-        tickers=tickers,
-        start_date=start_date,
-        end_date=end_date,
-        force_refresh=args.force
-    )
+    try:
+        try:
+            loader = DataLoader(db_path=work_db)
+        except duckdb.Error as e:
+            if "lock" in str(e).lower() and staging is None:
+                print("\n✗ The database is locked — the server has it open. Re-run with --hot-swap to "
+                      "update a copy and atomically swap it in while the server keeps running.")
+                return
+            raise
 
-    print("\n" + "=" * 60)
-    print("DOWNLOAD SUMMARY")
-    print(f"  New:     {len(stats['success'])} tickers")
-    print(f"  Updated: {len(stats['updated'])} tickers")
-    print(f"  Skipped: {len(stats['skipped'])} tickers (already up to date)")
-    print(f"  Failed:  {len(stats['failed'])} tickers")
+        stats = loader.download_stock_data(
+            tickers=tickers,
+            start_date=start_date,
+            end_date=end_date,
+            force_refresh=args.force
+        )
 
-    if stats['failed']:
-        print(f"\n  Failed tickers: {', '.join(stats['failed'])}")
+        print("\n" + "=" * 60)
+        print("DOWNLOAD SUMMARY")
+        print(f"  New:     {len(stats['success'])} tickers")
+        print(f"  Updated: {len(stats['updated'])} tickers")
+        print(f"  Skipped: {len(stats['skipped'])} tickers (already up to date)")
+        print(f"  Failed:  {len(stats['failed'])} tickers")
 
-    print("\n" + "=" * 60)
-    print("DATA SUMMARY")
-    summary = loader.get_data_summary()
-    if len(summary) > 0:
-        print(summary.to_string(index=False))
+        if stats['failed']:
+            print(f"\n  Failed tickers: {', '.join(stats['failed'])}")
+
+        print("\n" + "=" * 60)
+        print("DATA SUMMARY")
+        summary = loader.get_data_summary()
+        if len(summary) > 0:
+            print(summary.to_string(index=False))
+
+        if staging is not None:
+            if stats["success"] or stats["updated"]:
+                commit_hot_swap(staging, args.db)
+                print(f"✓ hot-swap: {args.db} updated. The running server will pick it up on its next reopen/restart.")
+            else:
+                for p in (staging, _wal(staging)):
+                    if os.path.exists(p):
+                        os.remove(p)
+                print("⊘ hot-swap: nothing changed — live DB left as-is (no swap needed).")
+    except BaseException:
+        # Never leave a half-built staging file behind (and never touch the live DB on failure).
+        if staging is not None:
+            for p in (staging, _wal(staging)):
+                if os.path.exists(p):
+                    os.remove(p)
+        raise
 
     print("\n✓ Data loading complete!")
 

@@ -101,7 +101,7 @@ Every intermediate step produces a named view with full metadata. The final char
 (we recommend in a virtual environment)
 
 ```bash
-git clone https://github.com/ericglover/agentic_TRACE.git
+git clone https://github.com/AppliedIngenuity-ai/agentic_TRACE
 cd agentic_TRACE
 pip install -e .
 ```
